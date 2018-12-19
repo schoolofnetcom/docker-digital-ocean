@@ -1,0 +1,42 @@
+version: '3.1'
+services:
+
+  database:
+    image: mysql:5.7
+    environment:
+      - "MYSQL_DATABASE=microjobs_db"
+      - "MYSQL_USER=microjobs_user"
+      - "MYSQL_PASSWORD=schoolofnet"
+      - "MYSQL_ROOT_PASSWORD=schoolofnet"
+    volumes:
+      - database:/var/lib/mysql    
+    networks:
+      - webnet
+
+  #  The Application
+  app:
+    image: app-liveclass:v5
+    ports:
+        - 9000:9000
+    networks:
+      - webnet    
+    working_dir: /var/www/microjobs
+    env_file: 'microjobs/.env'
+    environment:
+      - "DB_HOST=database"   
+    depends_on:
+      - database
+  # The Web Server
+  web:
+    image: nginx-liveclass:v2
+    ports:
+      - 4000:80
+    networks:
+      - webnet
+    depends_on:
+      - app
+
+volumes:
+    database:      
+networks:
+  webnet:
